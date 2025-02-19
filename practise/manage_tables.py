@@ -13,6 +13,16 @@ def create_table(connection, table_name):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """)
+    elif(table_name == 'accounts'):
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS accounts (
+            id SERIAL PRIMARY KEY,
+            balance float not null,
+            account_type VARCHAR(20) NOT NULL,
+            member_id int,
+            created_date date
+        );
+    """)
     elif(table_name == 'transactions'):
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS fin_member_transactions (
