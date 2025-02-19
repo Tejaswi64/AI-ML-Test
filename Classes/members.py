@@ -13,7 +13,7 @@ class Member:
         self.address = address
         self.salary = salary
         self.__ssn = None
-        self.db_connection()
+        self.connection = self.db_connection()
     
     def db_connection(self):
         import os
@@ -34,6 +34,7 @@ class Member:
                 sslmode="require"
             )
             print("Database connection successful!")
+            return self.connection
         except Exception as e:
             print("Error connecting to the database",e)
 
@@ -53,16 +54,16 @@ class Member:
         else:
             print("No records found")
     
-    def create_new_member(self ):
+    def create_member(self ):
         if not self.retrieve_member(self.email):
             cursor = self.connection.cursor()
             cursor.execute(f"""
             INSERT INTO fin_members (first_name, last_name, email, phone_number, date_of_birth)
-            VALUES (%s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s) RETURNING member_id;
             """, (self.first_name, self.last_name, self.email, self.phone_number, self.date_of_birth))
             self.connection.commit()
-            #id = cursor.fetchone()[0]
             print("Record inserted successfully!")
+            #return cursor.fetchone()[0]
         else:
             print("Member already exists")
 
@@ -80,8 +81,7 @@ class Member:
             self.retrieve_member()
 
     def delete_member(self, email):
-        r = self.retrieve_member(email)
-        if r:
+        if self.retrieve_member(email):
             cursor = self.connection.cursor()
             cursor.execute(f"""
             DELETE FROM fin_members
@@ -92,9 +92,10 @@ class Member:
         else:
             print("Record not found")
 
+'''
 M = Member('test1@fin.com','Test1','Test1')
 print("****** Creating a new member ******")
-M.create_new_member()
+M.create_member()
 print("****** Checking member ******")
 print(M.retrieve_member('tk@fin.com'))
 print("****** Retriving all members ******")
@@ -106,5 +107,6 @@ M.retrieve_member()
 print("****** Updating Record ******")
 M.update_member('test@fin.com', 'test_updated', 'test_updated')
 
-
-
+M = Member('test1@fin.com','Test1','Test1')
+M.delete_member('test2@fin.com')
+'''
