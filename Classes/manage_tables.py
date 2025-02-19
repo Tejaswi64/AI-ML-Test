@@ -43,7 +43,7 @@ def create_table(connection, table_name):
         CREATE TABLE IF NOT EXISTS branch (
             branch_id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            street1 VARCHAR(255),
+            street VARCHAR(255),
             city VARCHAR(100),
             zip VARCHAR(10)
         );
@@ -74,7 +74,7 @@ def db_connection():
             except Exception as e:
                 print("Error connecting to the database",e)
 
-
+'''
 conn = db_connection()
 if conn:
     create_table(conn, 'member')
@@ -82,3 +82,4 @@ if conn:
     create_table(conn, 'accounts')
     create_table(conn, 'transactions')
     conn.close()
+'''

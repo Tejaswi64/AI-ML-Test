@@ -1,3 +1,4 @@
+from manage_tables import db_connection
 class Member:
 
     member_serial_number = 0
@@ -13,30 +14,7 @@ class Member:
         self.address = address
         self.salary = salary
         self.__ssn = None
-        self.connection = self.db_connection()
-    
-    def db_connection(self):
-        import os
-        from dotenv import load_dotenv
-        import psycopg2
-
-        # Load environment variables from .env file
-        load_dotenv()
-
-        # Database connection setup
-        try:
-            self.connection = psycopg2.connect(
-                dbname=os.getenv('DB_NAME'),
-                user=os.getenv('DB_USER'),
-                password=os.getenv('DB_PASSWORD'),
-                host=os.getenv('DB_HOST'),
-                port=os.getenv('DB_PORT'),
-                sslmode="require"
-            )
-            print("Database connection successful!")
-            return self.connection
-        except Exception as e:
-            print("Error connecting to the database",e)
+        self.connection = db_connection()
 
     def retrieve_member(self, email=None):
         cursor = self.connection.cursor()
@@ -52,7 +30,7 @@ class Member:
                 print(row)
             return rows
         else:
-            print("No records found")
+            print("No Members found")
     
     def create_member(self ):
         if not self.retrieve_member(self.email):
@@ -62,7 +40,7 @@ class Member:
             VALUES (%s, %s, %s, %s, %s) RETURNING member_id;
             """, (self.first_name, self.last_name, self.email, self.phone_number, self.date_of_birth))
             self.connection.commit()
-            print("Record inserted successfully!")
+            print("Member inserted successfully!")
             #return cursor.fetchone()[0]
         else:
             print("Member already exists")
@@ -76,7 +54,7 @@ class Member:
                 WHERE email = %s;
             """, (first_name, last_name, email))
             self.connection.commit()
-            print("Record updated successfully!")
+            print("Member updated successfully!")
             print("updated data")
             self.retrieve_member()
 
@@ -88,9 +66,9 @@ class Member:
             WHERE email = %s;
             """, (email,))
             self.connection.commit()
-            print("Record deleted successfully!")
+            print("Member deleted successfully!")
         else:
-            print("Record not found")
+            print("Member not found")
 
 '''
 M = Member('test1@fin.com','Test1','Test1')
@@ -104,7 +82,7 @@ print("****** Deleting ******")
 M.delete_member('test1@fin.com')
 print("****** Retriving all members ******")
 M.retrieve_member()
-print("****** Updating Record ******")
+print("****** Updating Member ******")
 M.update_member('test@fin.com', 'test_updated', 'test_updated')
 
 M = Member('test1@fin.com','Test1','Test1')

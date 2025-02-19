@@ -1,44 +1,79 @@
+from manage_tables import db_connection
 
-class branch:
+class Branch:
     #class variable
     number_of_branches = 0
-    
-    
-    def __init__(self, bid, bname, baddr, bphone):
+
+    def __init__(self, id, name, street, city, zip):
         #instance variable
-        self.branch_id = bid
-        self.branch_name = bname
-        self.address = baddr
-        self.phone = bphone
+        self.branch_id = id
+        self.name = name
+        self.street = street
+        self.city = city
+        self.zip = zip
         #connect here
-        
+        self.connection = db_connection()
 
-
-    def create_branch(self):
-
-        #get a connection
-        connection = pyscopg2.connect()
-        #get a cursor
-        cursor = connection.cursor()
-        
+    def retrieve_branch(self, branch_id=None):
         cursor = self.connection.cursor()
-        #run the insert query
+        if branch_id is None:
+            query = "SELECT * FROM branch;"
+        else:
+            query = "SELECT * FROM branch where branch_id = %s ;"
+        cursor.execute(query,(branch_id,))
+        rows = cursor.fetchall()
+        self.connection.commit()
+        if rows:
+            for row in rows:
+                print(row)
+            return rows
+        else:
+            print("No Branchs found")
+    
+    def create_branch(self ):
+        if not self.retrieve_branch(self.branch_id):
+            cursor = self.connection.cursor()
+            cursor.execute(f"""
+            INSERT INTO branch (branch_id, name, street, city, zip)
+            VALUES (%s, %s, %s, %s, %s);
+            """, (self.branch_id, self.name, self.street, self.city, self.zip))
+            self.connection.commit()
+            print("Branch inserted successfully!")
+            #return cursor.fetchone()[0]
+        else:
+            print("Branch already exists")
 
-        query = f"insert into branches values (?, ?, ?)".format(self.branch_name, self.address, self.phone)
-        cursor.execute(query)
+    def update_branch(self, branch_id, name, street):
+        if self.retrieve_branch(branch_id):
+            cursor = self.connection.cursor()
+            cursor.execute("""
+            UPDATE branch
+            SET name = %s,street = %s
+                WHERE branch_id = %s;
+            """, (name, street, branch_id))
+            self.connection.commit()
+            print("Branch updated successfully!")
+            print("updated data")
+            self.retrieve_branch()
 
-        cursor.commit()
+    def delete_branch(self, branch_id):
+        if self.retrieve_branch(branch_id):
+            cursor = self.connection.cursor()
+            cursor.execute(f"""
+            DELETE FROM branch
+            WHERE branch_id = %s;
+            """, (branch_id,))
+            self.connection.commit()
+            print("Branch deleted successfully!")
+        else:
+            print("Branch not found")
 
-
-
-    def update_branch(self):
-        #get a connection
-        connection = pyscopg2.connect()
-        #get a cursor
-        cursor = connection.cursor()
-        #run the insert query
-
-        query = f"update branches set address = ? where branch_name = ?".format(self.address, self.branch_name)
-        cursor.execute(query)
-
-        cursor.commit()
+#B = Branch(1, "BofA", "Park Ave", "Memphis", "38116")
+B = Branch(2, "Test", "test", "test", "test")
+print("**** Retrieve Branches ****")
+B.retrieve_branch()
+print("**** Creating a Branch ****")
+B.create_branch()
+#print("**** Updating a Branch ****")
+#B.update_branch(1,"BofA", "Jackson Street")
+#B.delete_branch(2)
