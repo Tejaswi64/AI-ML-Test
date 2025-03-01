@@ -1,22 +1,46 @@
-from members import Member
+from manage_tables import db_connection
 
 #member count is global variable
 member_count = 20
 
-class BaseAccount:
-    def __init__(self, id, od, mi, ba):
-        self.id = id
-        self.open_date = od
-        self.member_id = mi
-        self.member = None
-        self.balance = ba
+class Account:
+    def __init__(self, member_id, branch_id, balance, account_type):
+        self.id = None  # Assigned by the DB
+        self.member_id = member_id
+        self.branch_id = branch_id
+        self.balance = balance
+        self.account_type = account_type
+        self.connection = db_connection()
+
+    def create_account(self):
+        cursor = self.connection.cursor()
+        cursor.execute("""
+            INSERT INTO account (member_id, branch_id, balance, type, created_date)
+            VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP);
+        """, (self.member_id, self.branch_id, self.balance, self.account_type))
+        self.connection.commit()
+        self.id = cursor.fetchone()[0]
+        print("Account created successfully!")
+        #return self.id
 
     def add_money_to_account(self, amount):
-
-        #add money to balance and save to db
-        #return new balance
-        self.balance += amount
-        return self.balance
+        cursor = self.connection.cursor()
+        cursor.execute("""
+            UPDATE account SET balance = balance + %s WHERE id = %s;
+        """, (amount, self.id))
+        self.connection.commit()
+        print("Amount credited", amount)
+    
+    def withdraw_money(self, amount):
+        if self.balance >= amount:
+            cursor = self.connection.cursor()
+            cursor.execute("""
+                UPDATE account SET balance = balance - %s WHERE id = %s;
+            """, (amount, self.id))
+            self.connection.commit()
+            print(f"Withdrew {amount}. Remaining balance updated.")
+        else:
+            print("Insufficient balance.")
     
 
 
@@ -32,11 +56,6 @@ class CheckingAccount(BaseAccount):
         self.member_id = #instance variable
         BaseAccount.variable_name = #class variable
         member_id = 20 #local variable within this method"""
-        if amount<=self.balance:
-            self.balance -= amount
-            return "Remaining balance"+self.balance
-        else:
-            return "Insufficient balance"
 
     def retrieve_account_details_with_type():
 
