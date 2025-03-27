@@ -82,7 +82,7 @@
                 </div>
                 {% else %}
                 <div style="width:100%">
-                    <div style="float: right;background-color: antiquewhite;white-space: pre-wrap;width:90%;">
+                    <div style="float: right;background-color: antiquewhite;white-space: pre-wrap;width:100%;">
                         {{chatmessage[1]}}: <br/>
                 <b>{{ chatmessage[2]|safe}}</b><br/> 
                 Sent at: {{ chatmessage[3]|safe}} 
@@ -105,6 +105,12 @@
             <option value="openai" {% if model_name == 'openai' %} selected {%endif %}>openai</option>
             <option value="groq" {% if model_name == 'groq' %} selected {%endif %}>groq</option>
             <option value="gemini" {% if model_name == 'gemini' %} selected {%endif %}>Gemini</option>
+            <option value="fb_llama" {% if model_name == 'fb_llama' %} selected {%endif %}>fb_llama</option>
+        </select>
+
+        RAG: <select name="rag" id="rag">
+            <option value="no" {% if rag == 'no' %} selected {%endif %}>no</option>
+            <option value="yes" {% if rag == 'yes' %} selected {%endif %}>yes</option>
         </select>
         <button id="sendbutton">Submit</button>
     
@@ -116,7 +122,8 @@
         const chat_id = document.getElementById('chat_id').value;
         const chatBox = document.getElementById('chatBox');
         const in_message = document.getElementById('in_message');
-        const model_name = document.getElementById('model_name').value;
+        const model_name_fi = document.getElementById('model_name');
+        const rag_value_fi = document.getElementById('rag');
         const sendbutton = document.getElementById('sendbutton');
         document.getElementById('focusdiv').focus();
         function addMessage(text, isUser){
@@ -132,17 +139,19 @@
 
         async function sendMessage(){
             const message = in_message.value.trim();
+            const model_name = model_name_fi.value;
+            const rag_value = rag_value_fi.value;
             if(!message) return;
             in_message.value = '';
             addMessage(message, true);
             const aiMessage = document.createElement('div');
-            aiMessage.style.cssText = "white-space: pre-wrap;background-color:antiquewhite";
+            aiMessage.style.cssText = "white-space: pre-wrap;background-color:antiquewhite;width:100%";
             aiMessage.classList.add('ai-message');
             chatBox.appendChild(aiMessage);
 
 
-
-            const eventSource = new EventSource(`/chatresponsestream?in_message=${message}&model_name=${model_name}&chat_id=${encodeURIComponent(chat_id)}`);
+            console.log(model_name);
+            const eventSource = new EventSource(`/chatresponsestream?in_message=${message}&rag=${rag_value}&model_name=${model_name}&chat_id=${encodeURIComponent(chat_id)}`);
 
             eventSource.onmessage = function(event){
               

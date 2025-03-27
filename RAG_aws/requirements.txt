@@ -6,3 +6,9 @@ langchain-google-genai
 python-dotenv
 pydantic
 pymongo
+pandas
+numpy
+joblib
+flask-login
+sagemaker
+boto3
