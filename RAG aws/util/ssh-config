@@ -1,0 +1,4 @@
+Host test-aws-ec2
+    HostName ec2-18-117-74-121.us-east-2.compute.amazonaws.com
+    User ec2-user
+    IdentityFile ~/Users/tejaswikanneganti/Downloads/ec2trainigtest.pem
