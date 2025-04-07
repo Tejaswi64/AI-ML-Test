@@ -304,4 +304,4 @@ def get_chat_chain(chat_id, username, model_name = "openai", streaming=False):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port="5001", debug=True)
